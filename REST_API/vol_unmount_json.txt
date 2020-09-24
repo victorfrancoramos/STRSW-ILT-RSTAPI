@@ -1,0 +1,6 @@
+{
+  "nas": {
+    "path": ""
+  },
+  "state": "offline"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "aggr2",
+  "node": {
+    "name": "cluster2-01"
+  },
+  "block_storage": {
+    "primary": {
+      "disk_count": 5
+    }    
+  }
+}

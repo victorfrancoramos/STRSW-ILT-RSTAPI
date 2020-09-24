@@ -1,0 +1,69 @@
+#!/bin/bash
+#set -x
+# Create a number of files with random binary data. 
+# Usage is "randomfiles <number_of_files> <file_size_in_MB> <filename_prefix>"
+
+count=20
+size=100       # In MB
+filename='file_'
+dirpath='.'
+
+while getopts ":n:s:f:p:" opt; do
+  case $opt in
+    n  ) if [[ "$OPTARG" =~ ^[0-9]+$ ]]
+         then
+           count=$OPTARG
+         else
+           echo "Error: Value for -n option is non-numeric"
+           exit 1
+         fi
+       ;;
+    s  ) if [[ "$OPTARG" =~ ^[0-9]+$ ]]
+         then
+           size=$OPTARG
+         else
+           echo "Error: Value for -s option is non-numeric"
+           exit 1
+         fi
+       ;;
+    f  ) filename=$OPTARG
+       ;;
+    p  ) if [[ -d $OPTARG ]]
+         then
+           dirpath=$OPTARG
+         else
+           echo "Error: Value for -d option is not a directory"
+           exit 1
+         fi
+       ;;
+    \? ) echo 'usage: randomfiles [-n <num_files>] [-s <file_size>] [-f <filename_prefix>] [-p <directory>]'
+         exit 1
+  esac
+done 
+
+echo
+echo "You have chosen to create $count $size MB files containing random"
+echo "binary data under $dirpath:"
+
+fault=0
+for i in $(seq -w 1 $count);
+do
+  fullfile="$dirpath/$filename$i"
+  echo
+  echo "### Creating $fullfile..."
+  dd if=/dev/urandom of=$fullfile bs=$((1024*1024)) count=$size 2>&1
+  if [ $? -ne 0 ]
+  then
+    echo "return status = $?"
+    fault=1
+    break
+  fi
+done
+
+if [ $fault -ne 0 ]
+then
+  echo
+  echo "Error encountered, file provisioning aborted!"
+  exit 1
+fi
+exit 0
