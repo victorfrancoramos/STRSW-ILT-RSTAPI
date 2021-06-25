@@ -1,3 +1,6 @@
 git clone https://github.com/victorfrancoramos/STRSW-ILT-RSTAPI.git
 
 curl -kiu admin:Netapp1! -X GET https://cluster1.demo.netapp.com/api/storage/aggregates
+
+# python aggr.py gives an error "ImportError: No module named netapp_ontap"
+python3.7 aggr.py
