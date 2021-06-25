@@ -1,0 +1,3 @@
+git clone https://github.com/victorfrancoramos/STRSW-ILT-RSTAPI.git
+
+curl -kiu admin:Netapp1! -X GET https://cluster1.demo.netapp.com/api/storage/aggregates
