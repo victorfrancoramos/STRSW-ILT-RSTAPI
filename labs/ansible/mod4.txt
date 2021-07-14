@@ -1,0 +1,29 @@
+cd /root
+sudo easy_install pip
+sudo pip install ansible netapp-lib requests
+sudo ansible-galaxy collection install netapp.ontap
+sudo chmod -R +x /root/.ansible/collections
+git clone https://github.com/netapp-devops/ansible ansible-workshop
+
+cd ansible-workshop
+cat ansible.cfg
+cat hosts
+
+ansible ontap --list-hosts
+ansible servers --list-hosts
+ansible nginx --list-hosts
+ansible rhel1 --list-hosts
+ansible rhel2 --list-hosts
+
+ls -al /root/ansible-workshop
+
+ansible servers -m ping
+ansible servers -m yum -a 'name=python state=latest'
+ansible servers -m copy -a 'src=/etc/hosts dest=/tmp/ansible-test'
+
+echo “modifying /tmp/ansible-test” >> /tmp/ansible-test
+ansible servers -m copy -a 'src=/etc/hosts dest=/tmp/ansible-test'
+
+ansible localhost -m na_ontap_command -a 'hostname=192.168.0.102 username=admin password=Netapp1! https=true  validate_certs=false command="date"'
+
+cp /root/ansible0/gather-info-cluster2-old.yml gather-info-cluster2.yml

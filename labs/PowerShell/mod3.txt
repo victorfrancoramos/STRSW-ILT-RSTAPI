@@ -31,10 +31,15 @@ $result = Invoke-RestMethod -method PATCH -uri "https://cluster1.demo.netapp.com
 $result
 $result.job
 $result.job.uuid
+# And to get uuid directly... Examples of PowerShell Concatenate String - https://www.educba.com/powershell-concatenate-string/
+$result = Invoke-RestMethod -method PATCH -uri ("https://cluster1.demo.netapp.com/api/storage/volumes/" + $vol_uuid.records.uuid + "?return_timeout=0&sizing_method=use_existing_resources") -header @{"accept" = "application/json"; "authorization" = "Basic YWRtaW46TmV0YXBwMSE="} -body '{"size": "400MB"}'
+
 
 Get job status
 curl -X GET "https://cluster1.demo.netapp.com/api/cluster/jobs/c300f977-e462-11eb-b34e-005056b0ba19" -H "accept: application/json" -H "authorization: Basic YWRtaW46TmV0YXBwMSE="
 $job = Invoke-RestMethod -method GET -uri "https://cluster1.demo.netapp.com/api/cluster/jobs/c300f977-e462-11eb-b34e-005056b0ba19" -header @{"accept" = "application/json"; "authorization" = "Basic YWRtaW46TmV0YXBwMSE="}
 $job
 $job.state
+
+$job = Invoke-RestMethod -method GET -uri ("https://cluster1.demo.netapp.com/api/cluster/jobs/" + $result.job.uuid) -header @{"accept" = "application/json"; "authorization" = "Basic YWRtaW46TmV0YXBwMSE="}
 
