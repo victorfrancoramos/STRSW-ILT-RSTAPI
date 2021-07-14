@@ -1,0 +1,40 @@
+cd C:\LOD\exercises\REST_API
+dir
+cluster1::> rows 0
+https://cluster1.demo.netapp.com/docs/api/
+cluster1::> storage aggregate create -aggregate aggr2 -node cluster1-01 -diskcount 5
+cluster1::> vserver create -vserver VServer2 -aggregate aggr2
+
+(You follow the examples that are listed in C:\LOD\exercises\REST_API\do.txt)
+Step A: You create the volume vol3 on the aggregate aggr2 in the svm VServer2.
+# curl -kiu admin:Netapp1! -X POST https://cluster2.demo.netapp.com/api/storage/volumes -d '{"name": "vol3", "aggregates": [{"name": "aggr2"}], "svm": {"name": "VServer2"}, "size": "300MB"}'
+curl -X POST "https://cluster1.demo.netapp.com/api/storage/volumes?return_timeout=0&return_records=false" -H "accept: application/json" -H "authorization: Basic YWRtaW46TmV0YXBwMSE=" -H "Content-Type: application/json" -d "{ \"name\": \"vol3\", \"aggregates\": [ { \"name\": \"aggr2\" } ], \"svm\": { \"name\": \"VServer2\" }, \"size\": \"300MB\"}"
+
+$result = Invoke-RestMethod -method POST -uri "https://cluster1.demo.netapp.com/api/storage/volumes" -header @{"accept" = "application/json"; "authorization" = "Basic YWRtaW46TmV0YXBwMSE="} -body '{"name": "vol3", "aggregates": [{"name": "aggr2"}], "nas.path": "/vol3", "size": "300MB", "svm.name": "VServer2"}'
+$result
+$result.job
+$result.job.uuid
+
+Step B: You get the volume UUID for volume vol3.
+curl -kiu admin:Netapp1! -X GET https://cluster2.demo.netapp.com/api/storage/volumes?name=vol3&s vm.name=VServer2
+curl -X GET "https://cluster1.demo.netapp.com/api/storage/volumes?name=vol3&return_records=true&return_timeout=15" -H "accept: application/json" -H "authorization: Basic YWRtaW46TmV0YXBwMSE="
+$vol_uuid = Invoke-RestMethod -method GET -uri "https://cluster1.demo.netapp.com/api/storage/volumes?name=vol3&return_records=true&return_timeout=15" -header @{"accept" = "application/json"; "authorization" = "Basic YWRtaW46TmV0YXBwMSE="}
+$vol_uuid
+$vol_uuid.records
+$vol_uuid.records.uuid
+
+Step C: You resize the same volume to a size of 400MB. You need to use the volume UUID that is obtained in the previous step.
+curl -kiu admin:Netapp1! -X PATCH https://cluster2.demo.netapp.com/api/storage/volumes/5a3ec00d-ed46-11ea-b13b-005056ab806f?return_timeout=0&sizing_method=use_existing_resources -d '{"size": "400MB"}'
+curl -X PATCH "https://cluster1.demo.netapp.com/api/storage/volumes/99ed5b9c-e45f-11eb-b34e-005056b0ba19?return_timeout=0&sizing_method=use_existing_resources" -H "accept: application/json" -H "authorization: Basic YWRtaW46TmV0YXBwMSE=" -H "Content-Type: application/json" -d "{ \"size\": \"400MB\"}"
+
+$result = Invoke-RestMethod -method PATCH -uri "https://cluster1.demo.netapp.com/api/storage/volumes/99ed5b9c-e45f-11eb-b34e-005056b0ba19?return_timeout=0&sizing_method=use_existing_resources" -header @{"accept" = "application/json"; "authorization" = "Basic YWRtaW46TmV0YXBwMSE="} -body '{"size": "300MB"}'
+$result
+$result.job
+$result.job.uuid
+
+Get job status
+curl -X GET "https://cluster1.demo.netapp.com/api/cluster/jobs/c300f977-e462-11eb-b34e-005056b0ba19" -H "accept: application/json" -H "authorization: Basic YWRtaW46TmV0YXBwMSE="
+$job = Invoke-RestMethod -method GET -uri "https://cluster1.demo.netapp.com/api/cluster/jobs/c300f977-e462-11eb-b34e-005056b0ba19" -header @{"accept" = "application/json"; "authorization" = "Basic YWRtaW46TmV0YXBwMSE="}
+$job
+$job.state
+
