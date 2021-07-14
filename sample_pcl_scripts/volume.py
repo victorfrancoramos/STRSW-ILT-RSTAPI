@@ -30,7 +30,7 @@ def make_volume(volume_name: str, vserver_name: str, aggr_name: str, volume_size
     data = {
         'name': volume_name,
         'svm': {'name': vserver_name},
-        'aggregates': [{'name': aggr_name }],
+        'aggregates': [{'name': aggr_name}],
         'size': volume_size
     }
 

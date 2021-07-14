@@ -27,3 +27,17 @@ ansible servers -m copy -a 'src=/etc/hosts dest=/tmp/ansible-test'
 ansible localhost -m na_ontap_command -a 'hostname=192.168.0.102 username=admin password=Netapp1! https=true  validate_certs=false command="date"'
 
 cp /root/ansible0/gather-info-cluster2-old.yml gather-info-cluster2.yml
+ansible-playbook gather-info-cluster2.yml
+ansible-doc -l
+ansible-doc -l |grep -i ontap
+ansible-doc na_ontap_info
+ansible-doc na_ontap_autosupport
+
+https://docs.ansible.com/ansible/latest/modules/list_of_all_modules.html
+https://docs.ansible.com/ansible/latest/collections/index_module.html
+
+net int show
+volume show
+vserver show
+
+vserver cifs delete -vserver svm21
