@@ -58,3 +58,21 @@ cluster1::vserver> delete -vserver VServer1
 cluster1::vserver> aggr
 cluster1::storage aggregate> delete -aggregate aggr1
 
+cd /root/ansible-workshop
+cat 2-full-playbook-cluster1.yml
+ansible-playbook 2-full-playbook-cluster1.yml
+
+Cluster2::>
+volume offline -vserver VServer2 -volume vol3
+volume delete -volume Vol3
+vserver delete -vserver VServer2
+aggregate delete -aggregate aggr2
+
+cat 3-full-playbook-cluster2.yml
+ansible-playbook 3-full-playbook-cluster2.yml
+
+vol show
+aggr show
+vserver show
+net int show
+nfs show

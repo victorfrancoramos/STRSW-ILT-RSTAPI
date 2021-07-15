@@ -1,0 +1,7 @@
+
+
+cluster1::>
+vserver create -vserver nas_svm -aggregate aggr1_cluster1_01_data
+network interface create -vserver nas_svm -lif lif1 -role data -data-protocol cifs -home-node cluster1-01 -subnet Demo -home-port e0d -status-admin up
+dns create -domains demo.netapp.com -name-servers 192.168.0.253 -vserver nas_svm -skip-config-validation
+cifs create -vserver nas_svm -cifs-server nas_svm -domain demo.netapp.com -ou CN=Computers
