@@ -41,3 +41,20 @@ volume show
 vserver show
 
 vserver cifs delete -vserver svm21
+
+ansible-playbook 1-cleanup-cluster2.yml
+
+net int show
+volume show
+vserver show
+storage aggregate show-spare-disks
+cluster peer show
+
+cluster1::> volume
+cluster1::volume> offline -vserver VServer1 -volume Vol1
+cluster1::volume> delete -vserver VServer1 -volume Vol1
+cluster1::volume> vserver
+cluster1::vserver> delete -vserver VServer1
+cluster1::vserver> aggr
+cluster1::storage aggregate> delete -aggregate aggr1
+
