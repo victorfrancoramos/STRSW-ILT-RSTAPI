@@ -13,14 +13,14 @@
 #                 • Mapping the LUN to the host
 #
 # Modules:      netapp.ontap.na_ontap_svm / na_ontap_iscsi / na_ontap_interface /
-#               na_ontap_igroup
+#               na_ontap_igroup / na_ontap_volume / na_ontap_lun / na_ontap_lun_map
 #
 # URLs:         http://docs.netapp.com/ontap-9/index.jsp
 #               https://galaxy.ansible.com/netapp/ontap
 #
 # Built-in help:
 # ansible-doc netapp.ontap.netapp.ontap.na_ontap_svm / na_ontap_iscsi / na_ontap_interface /
-#             na_ontap_igroup
+#             na_ontap_igroup / na_ontap_volume / na_ontap_lun / na_ontap_lun_map
 #
 ################################################################################
 
@@ -60,7 +60,7 @@
         size: 1
         size_unit: gb
         ostype: windows
-        space_reserve:
+        space_reserve: yes
         igroup: igroup1
 # VARs: Mapping the LUN to the host
 
@@ -104,10 +104,10 @@
 #      listen_for_dns_query: true
 #      is_dns_update_enabled: true
       <<: *input
-    with_items: "{{ lifs }}"
+    with_items:
       "{{ lifs }}"
     when: lifs != None
-  - name: Create iGroup
+  - name: Creating iGroup
     na_ontap_igroup:
       state: present
       name: "{{ item.name }}"
@@ -119,7 +119,7 @@
     with_items:
       "{{ igroups }}"
     when: igroups != None
-  - name: Create volume
+  - name: Creating volume
     na_ontap_volume:
       state: present
       name: "{{ item.vol_name }}"
@@ -131,7 +131,8 @@
       <<: *input
     with_items:
       "{{ luns }}"
-  - name: Lun Create
+    when: luns != None
+  - name: Creating Lun
     na_ontap_lun:
       state: present
       name: "{{ item.name }}"
@@ -145,7 +146,7 @@
     with_items:
       "{{ luns }}"
     when: luns != None
-  - name: Create LUN mapping
+  - name: Creating LUN mapping
     na_ontap_lun_map:
       state: present
       initiator_group_name: "{{ item.igroup }}"
