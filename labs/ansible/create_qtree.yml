@@ -2,31 +2,29 @@
 
 ################################################################################
 #
-# Title:        create_volume.yml
+# Title:        create_qtree.yml
 # Author:       Victor Franco
 # Date:         2021-07-15
-# Description:  Create a volume
+# Description:  Create a qtree
 #               with Ansible modules
 #
-# Modules:      na_ontap_volume
+# Modules:      na_ontap_qtree
 #
 # URLs:         http://docs.netapp.com/ontap-9/index.jsp
 #               https://galaxy.ansible.com/netapp/ontap
 #
 # Built-in help:
-# ansible-doc netapp.ontap.na_ontap_volume
+# ansible-doc netapp.ontap.na_ontap_qtree
 #
 ################################################################################
 
 - hosts: localhost
   gather_facts: false
   vars:
- # Create a volume called nas_svm_cifs_01 of size 20MB in the SVM nas_svm and aggregate aggr1_cluster1_01_data.
-    volume_name: nas_svm_cifs_01
-    volume_size: 20
-    volume_unit: mb
+ # Create a qtree called cifs_01 in the SVM nas_svm and for the volume nas-svm_cifs_01. ERROR: Name is nas_svm_cifs_01
+    qtree_name: cifs_01
     svm_name: nas_svm
-    aggregate_name: aggr1_cluster1_01_data
+    volume_name: nas_svm_cifs_01
     input: &input
       hostname:       "{{ PRI_CLU }}"
       username:       "{{ PRI_CLU_USER }}"
@@ -41,25 +39,17 @@
     - netapp.ontap
 
   tasks:
-  - name: Create volume
-    na_ontap_volume:
+  - name: Create qtree
+    na_ontap_qtree:
       state: present
-      name: "{{ volume_name }}"
-      size: "{{ volume_size }}"
-      size_unit: "{{ volume_unit }}"
+      name: "{{ qtree_name }}"
       vserver: "{{ svm_name }}"
-      aggregate_name: "{{ aggregate_name }}"
-#      is_infinite: False
-#      user_id: 1001
-#      group_id: 2002
-#      space_guarantee: none
-#      tiering_policy: auto
-#      export_policy: default
-#      percent_snapshot_space: 60
-#      qos_policy_group: max_performance_gold
-#      wait_for_completion: True
-#      space_slo: none
-#      nvfail_enabled: False
-      comment:               Created with Ansible
+      flexvol_name: "{{ volume_name }}"
+#      export_policy: policyName
+#      security_style: mixed
+#      oplocks: disabled
+#      unix_permissions:
+#      comment:               Created with Ansible
+# ERROR comment field does not exist in qtree command, thus it was not implemented in na_ontap_qtree. Thus if we keep it after copying'n'pasting we will get an error
       <<: *input
 
