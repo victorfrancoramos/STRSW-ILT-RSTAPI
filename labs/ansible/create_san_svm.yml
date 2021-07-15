@@ -1,0 +1,157 @@
+#!/usr/bin/env ansible-playbook
+
+################################################################################
+#
+# Title:        create_san_svm.yml
+# Author:       Victor Franco
+# Date:         2021-07-15
+# Description:  Create an iSCSI SVM with all the SAN resources:
+#                 • Creating an SVM
+#                 • Enabling iSCSI
+#                 • Creating LIFs
+#                 • Creating an initiator group (igroup) and a LUN and mapping the LUN to the igroup
+#                 • Mapping the LUN to the host
+#
+# Modules:      netapp.ontap.na_ontap_svm / na_ontap_iscsi / na_ontap_interface /
+#               na_ontap_igroup
+#
+# URLs:         http://docs.netapp.com/ontap-9/index.jsp
+#               https://galaxy.ansible.com/netapp/ontap
+#
+# Built-in help:
+# ansible-doc netapp.ontap.netapp.ontap.na_ontap_svm / na_ontap_iscsi / na_ontap_interface /
+#             na_ontap_igroup
+#
+################################################################################
+
+- hosts: localhost
+  gather_facts: false
+  vars:
+# VARs: COMMON
+    input: &input
+      hostname:       "{{ PRI_CLU }}"
+      username:       "{{ PRI_CLU_USER }}"
+      password:       "{{ PRI_CLU_PASS }}"
+      https:          true
+      validate_certs: false
+    svm_name: san_svm1
+# VARs: Creating an SVM
+# VARs: Enabling iSCSI
+# VARs: Creating LIFs
+    lifs:
+      - name: san_svm_iscsi_01
+        node: cluster1-01
+        ip: "192.168.0.241"
+        home: e0d
+      - name: san_svm_iscsi_02
+        node: cluster1-02
+        ip: "192.168.0.242"
+        home: e0d
+# VARs: Creating an initiator group (igroup) and a LUN and mapping the LUN to the igroup
+    igroups:
+      - name: igroup1
+        group_type: iscsi
+        ostype: windows
+        initiator: "iqn.1991-05.com.microsoft:jumphost.demo.netapp.com"
+    luns:
+      - name: lun1
+        vol_name: san_vol
+        aggr: aggr1_cluster1_01_data
+        size: 1
+        size_unit: gb
+        ostype: windows
+        space_reserve:
+        igroup: igroup1
+# VARs: Mapping the LUN to the host
+
+  vars_files:
+    - global.vars
+  collections:
+    - netapp.ontap
+
+  tasks:
+  - name: Creating an SVM
+    na_ontap_svm:
+      state: present
+      name: "{{ svm_name }}"
+#      root_volume: vol1
+#      root_volume_aggregate: aggr1
+#      root_volume_security_style: mixed
+      <<: *input
+  - name: Enabling iSCSI
+    na_ontap_iscsi:
+      state: present
+      service_state: started
+      vserver: "{{ svm_name }}"
+      <<: *input
+  - name: Creating LIFs
+    na_ontap_interface:
+      state: present
+      vserver: "{{ svm_name }}"
+      interface_name: "{{ item.name }}"
+      home_port: "{{ item.home }}"
+      home_node: "{{ item.node }}"
+      role: data
+      protocols: iscsi
+      address:  "{{ item.ip }}"
+      netmask: 255.255.255.0
+#      admin_status: up
+#      failover_policy: local-only
+#      firewall_policy: data
+#      is_auto_revert: true
+#      force_subnet_association: false
+#      dns_domain_name: test.com
+#      listen_for_dns_query: true
+#      is_dns_update_enabled: true
+      <<: *input
+    with_items: "{{ lifs }}"
+      "{{ lifs }}"
+    when: lifs != None
+  - name: Create iGroup
+    na_ontap_igroup:
+      state: present
+      name: "{{ item.name }}"
+      vserver: "{{ svm_name }}"
+      initiator_group_type: "{{ item.group_type }}"
+      ostype: "{{ item.ostype }}"
+      initiator: "{{ item.initiator }}"
+      <<: *input
+    with_items:
+      "{{ igroups }}"
+    when: igroups != None
+  - name: Create volume
+    na_ontap_volume:
+      state: present
+      name: "{{ item.vol_name }}"
+      aggregate_name: "{{ item.aggr }}"
+      size: "{{ (item.size | int * 1.05) | round(0, 'ceil') | int }}"
+      size_unit: "{{ item.size_unit }}"
+      space_guarantee: none
+      vserver: "{{ svm_name }}"
+      <<: *input
+    with_items:
+      "{{ luns }}"
+  - name: Lun Create
+    na_ontap_lun:
+      state: present
+      name: "{{ item.name }}"
+      flexvol_name: "{{ item.vol_name }}"
+      vserver: "{{ svm_name }}"
+      size: "{{ item.size }}"
+      size_unit: "{{ item.size_unit }}"
+      ostype: "{{ item.ostype }}"
+      space_reserve: "{{ item.space_reserve }}"
+      <<: *input
+    with_items:
+      "{{ luns }}"
+    when: luns != None
+  - name: Create LUN mapping
+    na_ontap_lun_map:
+      state: present
+      initiator_group_name: "{{ item.igroup }}"
+      path: "/vol/{{ item.vol_name }}/{{ item.name }}"
+      vserver: "{{ svm_name }}"
+      <<: *input
+    with_items:
+      "{{ luns }}"
+    when: luns != None
