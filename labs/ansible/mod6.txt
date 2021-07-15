@@ -1,0 +1,2 @@
+cluster1::>
+volume create -vserver nas_svm -volume nas_svm_nfs_01 -aggregate aggr1_cluster1_01_data

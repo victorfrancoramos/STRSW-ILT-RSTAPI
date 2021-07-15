@@ -1,0 +1,23 @@
+{ "aggregates": [{ "name": "aggr1_cluster1_01_data" } ], "name": "svm_san", "iscsi": {"enabled": "true" }}
+
+{
+  "aggregates": [
+    {
+      "name": "aggr1_cluster1_01_data"
+    }
+  ],
+  "name": "svm_san",
+  "iscsi": {
+    "enabled": "true"
+  }
+}
+
+curl -X POST "https://cluster1.demo.netapp.com/api/svm/svms?return_records=false&return_timeout=0" -H "accept: application/json" -H "authorization: Basic YWRtaW46TmV0YXBwMSE=" -H "Content-Type: application/json" -d "{ \"aggregates\": [{ \"name\": \"aggr1_cluster1_01_data\" } ], \"name\": \"svm_san\", \"iscsi\": {\"enabled\": \"true\" }}"
+
+curl -X POST "https://cluster1.demo.netapp.com/api/svm/svms?return_records=false&return_timeout=0" -H "accept: application/json" -H "authorization: Basic YWRtaW46TmV0YXBwMSE=" -H "Content-Type: application/json" -d "{ \"aggregates\": [{ \"name\": \"aggr1_cluster1_01_data\" } ], \"name\": \"svm_san2\", \"iscsi\": {\"enabled\": \"true\" }}" -k
+
+cd ansible-workshop
+cat check_svm.curl
+chmod 777 check_svm.curl
+chmod 777 check_san.curl
+yum install jq

@@ -1,0 +1,55 @@
+#!/usr/bin/env ansible-playbook
+
+################################################################################
+#
+# Title:        create_qtree_nfs.yml
+# Author:       Victor Franco
+# Date:         2021-07-15
+# Description:  Create a qtree
+#               with Ansible modules
+#
+# Modules:      na_ontap_qtree
+#
+# URLs:         http://docs.netapp.com/ontap-9/index.jsp
+#               https://galaxy.ansible.com/netapp/ontap
+#
+# Built-in help:
+# ansible-doc netapp.ontap.na_ontap_qtree
+#
+################################################################################
+
+- hosts: localhost
+  gather_facts: false
+  vars:
+ # Create a qtree called nfs_01 in the SVM nas_svm and for the volume nas_svm_nfs_01
+    qtree_name: nfs_01
+    svm_name: nas_svm
+    volume_name: nas_svm_nfs_01
+    input: &input
+      hostname:       "{{ PRI_CLU }}"
+      username:       "{{ PRI_CLU_USER }}"
+      password:       "{{ PRI_CLU_PASS }}"
+      https:          true
+      validate_certs: false
+# root_volume_aggregate currently not supported with REST
+#      use_rest:       Always
+  vars_files:
+    - global.vars
+  collections:
+    - netapp.ontap
+
+  tasks:
+  - name: Create qtree
+    na_ontap_qtree:
+      state: present
+      name: "{{ qtree_name }}"
+      vserver: "{{ svm_name }}"
+      flexvol_name: "{{ volume_name }}"
+#      export_policy: policyName
+#      security_style: mixed
+#      oplocks: disabled
+#      unix_permissions:
+#      comment:               Created with Ansible
+# ERROR comment field does not exist in qtree command, thus it was not implemented in na_ontap_qtree. Thus if we keep it after copying'n'pasting we will get an error
+      <<: *input
+

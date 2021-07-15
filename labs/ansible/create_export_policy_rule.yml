@@ -1,0 +1,58 @@
+#!/usr/bin/env ansible-playbook
+
+################################################################################
+#
+# Title:        create_export_policy_rule.yml
+# Author:       Victor Franco
+# Date:         2021-07-15
+# Description:  Create an EXPORT Policy Rule
+#               with Ansible modules
+#
+# Modules:      na_ontap_export_policy_rule
+#
+# URLs:         http://docs.netapp.com/ontap-9/index.jsp
+#               https://galaxy.ansible.com/netapp/ontap
+#
+# Built-in help:
+# ansible-doc netapp.ontap.na_ontap_export_policy_rule
+#
+################################################################################
+
+- hosts: localhost
+  gather_facts: false
+  vars:
+ # Create an export policy rule for the SVM nas_svm, with client_match set to 0.0.0.0/0,
+ # ro_rule and rw_rule set to any and protocol set to nfs3.
+    svm_name: nas_svm
+    client_match: "0.0.0.0/0"
+    ro_rule: any
+    rw_rule: any
+    protocol: nfs3
+    input: &input
+      hostname:       "{{ PRI_CLU }}"
+      username:       "{{ PRI_CLU_USER }}"
+      password:       "{{ PRI_CLU_PASS }}"
+      https:          true
+      validate_certs: false
+# root_volume_aggregate currently not supported with REST
+#      use_rest:       Always
+  vars_files:
+    - global.vars
+  collections:
+    - netapp.ontap
+
+  tasks:
+  - name: Create an EXPORT Policy Rule
+    na_ontap_export_policy_rule:
+      state: present
+      name: default123
+      vserver: "{{ svm_name }}"
+      client_match: "{{ client_match }}"
+      ro_rule: "{{ ro_rule }}"
+      rw_rule: "{{ rw_rule }}"
+      protocol: "{{ protocol }}"
+#      super_user_security: any
+#      anonymous_user_id: 65534
+#      allow_suid: true
+      <<: *input
+
