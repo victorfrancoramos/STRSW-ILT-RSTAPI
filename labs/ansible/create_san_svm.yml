@@ -48,11 +48,14 @@
         ip: "192.168.0.242"
         home: e0d
 # VARs: Creating an initiator group (igroup) and a LUN and mapping the LUN to the igroup
-    igroups:
+# ERROR: There is same named variable in the global.vars file (igroups). If we call the local variable
+#         with the same name, it will pick the value from global.vars file a give an error.
+#         that is why we call it igroups_local
+    igroups_local:
       - name: igroup1
-        group_type: iscsi
+        initiator_group_type: iscsi
         ostype: windows
-        initiator: "iqn.1991-05.com.microsoft:jumphost.demo.netapp.com"
+        initiator_names: "iqn.1991-05.com.microsoft:jumphost.demo.netapp.com"
     luns:
       - name: lun1
         vol_name: san_vol
@@ -112,13 +115,13 @@
       state: present
       name: "{{ item.name }}"
       vserver: "{{ svm_name }}"
-      initiator_group_type: "{{ item.group_type }}"
+      initiator_group_type: "{{ item.initiator_group_type }}"
       ostype: "{{ item.ostype }}"
-      initiator: "{{ item.initiator }}"
+      initiator_names: "{{ item.initiator_names }}"
       <<: *input
     with_items:
-      "{{ igroups }}"
-    when: igroups != None
+      "{{ igroups_local }}"
+    when: igroups_local != None
   - name: Creating volume
     na_ontap_volume:
       state: present
