@@ -67,7 +67,7 @@ more /root/.ansible/collections/ansible_collections/netapp/ontap/roles/na_ontap_
     name: "{{ item.name }}"
     flexvol_name: "{{ item.vol_name }}"
     vserver: "{{ item.vserver }}"
-‌‌‌‌‌‌‌‌    size: "{{ item.size }}"
+    size: "{{ item.size }}"
     size_unit: gb
     ostype: "{{ item.ostype }}"
     space_reserve: "{{ item.space_reserve }}"

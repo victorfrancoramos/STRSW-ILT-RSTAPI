@@ -1,0 +1,83 @@
+
+***** IMPORTANT: If you opened this file in NotePad, we recommend you turn off Word Wrap so
+      Notepad won't automatically reformat long lines. To do this, go to Notepad's "Format"
+      menu and uncheck "Word Wrap".
+
+
+########## Exercise 3.2.1 commands ##########
+
+
+##### Step 2) Starting Curl GET command you will be converting to PowerShell in the next step.
+
+curl -X GET "https://cluster2.demo.netapp.com/api/storage/volumes?name=vol1&fields=*&return_records=true&return_timeout=15" -H "accept: application/json" -H "authorization: Basic YWRtaW46TmV0YXBwMSE="
+
+
+##### Step 3) PowerShell -header replacement for curl -H parameters and values.
+
+-header @{"accept" = "application/json"; "authorization" = "Basic YWRtaW46TmV0YXBwMSE="}
+
+
+##### Step 4) Fully converted GET command, now in PowerShell.
+
+$result = Invoke-RestMethod -method GET -uri "https://cluster2.demo.netapp.com/api/storage/volumes?name=vol1&fields=*&return_records=true&return_timeout=15" -header @{"accept" = "application/json"; "authorization" = "Basic YWRtaW46TmV0YXBwMSE="}
+
+
+##### Step 5)
+
+$result
+
+
+##### Step 6)
+
+$result.records
+
+
+##### Step 7) Do not copy this curl command yet...
+
+
+##### Step 8) Read JSON file into object and display the object.
+
+$body = Get-Content -Raw -Path C:\LOD\exercises\REST_API\vol_create_json.txt | ConvertFrom-json
+
+$body
+
+
+##### Step 9) Update object for vol5.
+
+$body.name = "vol5"
+
+$body.nas.path = "/vol5"
+
+$body
+
+
+##### Step 10) Convert object back to JSON
+
+$bodyjson = $body | ConvertTo-json
+
+
+##### Step 11) Starting Curl POST command you will be converting to PowerShell in step 12. This is a repeat if the command from step 7.
+
+curl -X POST "https://cluster2.demo.netapp.com/api/storage/volumes" -H "accept: application/json" -H "authorization: Basic YWRtaW46TmV0YXBwMSE=" -H "Content-Type: application/json" -d "{ \"aggregates\": [ { \"name\": \"aggr1_cluster2_01\" } ], \"name\": \"vol4\", \"nas\": { \"path\": \"/vol4\" }, \"size\": 100000000, \"svm\": { \"name\": \"svm21\" }}"
+
+
+##### Step 12) PowerShell -header replacement for curl -H parameters and values, and for -d and JSON data.
+
+-header @{"accept" = "application/json"; "authorization" = "Basic YWRtaW46TmV0YXBwMSE="}
+
+-body $bodyjson
+
+
+##### Step 13) Fully converted POST command, now in PowerShell.
+
+$result = Invoke-RestMethod -method POST -uri "https://cluster2.demo.netapp.com/api/storage/volumes" -header @{"accept" = "application/json"; "authorization" = "Basic YWRtaW46TmV0YXBwMSE="} -body $bodyjson
+
+$result
+
+
+##### Step 14) Query job status of submitted POST command.
+
+$uri = "https://cluster2.demo.netapp.com" + $result.job._links.self.href
+
+Invoke-RestMethod -method GET -uri $uri -header @{"accept" = "application/json"; "authorization" = "Basic YWRtaW46TmV0YXBwMSE="}
+

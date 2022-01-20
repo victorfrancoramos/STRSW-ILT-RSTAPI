@@ -1,3 +1,0 @@
-curl -kiu admin:Netapp1! -X GET https://cluster2.demo.netapp.com/api/storage/volumes?name=vol3&svm.name=VServer2
-
-curl -kiu admin:Netapp1! -X PATCH https://cluster2.demo.netapp.com/api/storage/volumes/5a3ec00d-ed46-11ea-b13b-005056ab806f?return_timeout=0&sizing_method=use_existing_resources -d '{"size": "400MB"}'

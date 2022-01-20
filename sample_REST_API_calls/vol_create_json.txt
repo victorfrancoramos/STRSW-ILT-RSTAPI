@@ -1,0 +1,15 @@
+{
+  "aggregates": [
+    {
+      "name": "aggr2"    
+    }
+  ],
+  "name": "vol2",
+  "nas": {
+    "path": "/vol2"    
+  },
+  "size": 100000000,
+  "svm": {
+    "name": "VServer2"
+  }
+}

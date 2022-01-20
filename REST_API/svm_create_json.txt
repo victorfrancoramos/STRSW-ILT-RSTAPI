@@ -1,8 +1,0 @@
-{
-  "aggregates": [
-    {
-      "name": "aggr2"    
-    }
-  ],
-  "name": "VServer2"
-}
