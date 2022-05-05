@@ -1,3 +1,6 @@
 storage aggr create -aggregate aggr1 -node cluster1-01 -diskcount 5
 vserver create -vserver VServer1 -aggregate aggr1
 volume create -volume Vol1 -aggregate aggr1 -vserver VServer1 -size 10GB
+
+python3 qtree.py -c cluster1 -v Vol1 -vs VServer1 -q QTree1 -qos QoS_Policy1 -sh 1000000 -fh 1000 -un admin -u admin -p Netapp1!
+qtree show
