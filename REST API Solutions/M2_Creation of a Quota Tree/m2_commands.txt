@@ -1,0 +1,3 @@
+storage aggr create -aggregate aggr1 -node cluster1-01 -diskcount 5
+vserver create -vserver VServer1 -aggregate aggr1
+volume create -volume Vol1 -aggregate aggr1 -vserver VServer1 -size 10GB
