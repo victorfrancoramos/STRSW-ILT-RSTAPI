@@ -1,0 +1,56 @@
+---
+# EXAMPLE taken from LoD: Getting Started With ONTAP Automation Using Ansible v1.0 - https://labondemand.netapp.com/lab/sl10689
+
+- hosts: localhost
+  gather_facts: false
+  collections:
+    - netapp.ontap
+  vars:
+    login: &login
+      username: admin
+      password: Netapp1!
+      https: true
+      validate_certs: false
+  name: "Build Cluster: {{ cluster }}"
+
+  tasks:
+
+  - name: Create Cluster
+    na_ontap_cluster:
+      state: present
+      cluster_name: "{{ cluster }}"
+      hostname: "{{ node_ip }}"
+      <<: *login
+
+  - name: Create Cluster Mgmt LIF
+    na_ontap_interface:
+      state: present
+      interface_name: "{{ cluster }}_mgmt"
+      vserver: "{{ cluster }}"
+      address: "{{ cluster_mgmt }}"
+      netmask: "{{ subnet }}"
+      role: cluster-mgmt
+      home_node: "{{ cluster }}-01"
+      home_port: e0c
+      hostname: "{{ node_ip }}"
+      <<: *login
+
+  - name: Create User
+    na_ontap_user:
+      state: present
+      name: admin
+      applications: ssh,console,http,ontapi,service-processor
+      authentication_method: password
+      role_name: admin
+      vserver: "{{ cluster }}"
+      hostname: "{{ cluster_mgmt }}"
+      <<: *login
+
+  - name: Remove Auto Mgmt LIF
+    na_ontap_interface:
+      state: absent
+      interface_name: "{{ cluster }}-01_mgmt_auto"
+      vserver: "{{ cluster }}"
+      hostname: "{{ cluster_mgmt }}"
+      <<: *login
+

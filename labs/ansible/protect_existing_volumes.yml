@@ -1,4 +1,5 @@
 ---
+# EXAMPLE taken from LoD: Getting Started With ONTAP Automation Using Ansible v1.0 - https://labondemand.netapp.com/lab/sl10689
 
 - hosts: localhost
   collections:
@@ -20,6 +21,11 @@
       gather_subset: volume_info
       <<: *login
     register: results
+
+# If I want to check the results stored in the "register" variable
+#  - name: Print volume info
+#    debug:
+#      msg: "{{ results }}"
 
   - name: Filter and protect user volumes
     loop: "{{ results.ontap_info.volume_info | dict2items }}"

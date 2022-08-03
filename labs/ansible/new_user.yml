@@ -1,0 +1,76 @@
+---
+# EXAMPLE taken from LoD: Getting Started With ONTAP Automation Using Ansible v1.0 - https://labondemand.netapp.com/lab/sl10689
+
+- hosts: dc1.demo.netapp.com
+  collections:
+    - community.windows
+  name: Create User and Provision Volume
+  vars:
+    password: Netapp1!
+
+  tasks:
+
+  - name: Create new AD user
+    win_domain_user:
+      name: "{{ vol_user }}"
+      firstname: "{{ vol_first }}"
+      surname: "{{ vol_last }}"
+      password: "{{ password }}"
+      state: present
+      upn: "{{ vol_user }}@demo.netapp.com"
+      password_never_expires: yes
+      domain_username: DEMO\Administrator
+      domain_password: "{{ password }}"
+      domain_server: demo.netapp.com
+
+- hosts: localhost
+  collections:
+    - netapp.ontap
+  name: Provision user volume in ONTAP
+  vars:
+    aggr: cluster1_01_SSD_1
+    login: &login
+      hostname: cluster1.demo.netapp.com
+      vserver: svm1
+      username: admin
+      password: Netapp1!
+      https: true
+      validate_certs: false
+
+  tasks:
+
+  - name: Create volume
+    na_ontap_volume:
+      state: present
+      name: "user_{{ vol_user }}"
+      aggregate_name: "{{ aggr }}"
+      size: "{{ vol_size }}"
+      size_unit: gb
+      policy: default
+      junction_path: "/user_{{ vol_user }}"
+      snapshot_policy: user_storage
+      <<: *login
+
+  - name: Create CIFS share
+    na_ontap_cifs:
+      state: present
+      share_name: "user_{{ vol_user }}"
+      path: "/user_{{ vol_user }}"
+      share_properties: browsable,oplocks
+      symlink_properties: read_only,enable
+      <<: *login
+
+  - name: Create CIFS share ACL
+    na_ontap_cifs_acl:
+      state: present
+      share_name: "user_{{ vol_user }}"
+      user_or_group: "{{vol_user}}"
+      permission: full_control
+      <<: *login
+
+  - name: Remove Everyone entry from ACL
+    na_ontap_cifs_acl:
+      state: absent
+      share_name: "user_{{ vol_user }}"
+      user_or_group: Everyone
+      <<: *login
