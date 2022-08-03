@@ -15,4 +15,4 @@
       <<: *login
     register: ontap_info
   - debug:
-     msg: "{{ ontap_info.ontap_info }}"
+     msg: "{{ ontap_info }}"

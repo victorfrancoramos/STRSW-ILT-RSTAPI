@@ -56,7 +56,7 @@ def create_svm(vserver_name: str, aggr_name: str) -> None:
 
 def make_volume(volume_name: str, vserver_name: str, aggr_name: str, volume_size: int) -> None:
     """Creates a new volume in a SVM"""
-
+    """
     data = {
         'name': volume_name,
         'svm': {'name':vserver_name},
@@ -65,6 +65,13 @@ def make_volume(volume_name: str, vserver_name: str, aggr_name: str, volume_size
     }
 
     volume = Volume(**data)
+    """
+    volume = Volume.from_dict({
+        'name': volume_name,
+        'svm': {'name': vserver_name},
+        'aggregates': [{'name': aggr_name}],
+        'size': volume_size
+    })
 
     try:
         volume.post()

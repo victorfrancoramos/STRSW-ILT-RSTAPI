@@ -1,0 +1,39 @@
+---
+
+- hosts: localhost
+  collections:
+    - netapp.ontap
+  name: Protect Existing User Volumes
+  vars:
+    login: &login
+      hostname: cluster1.demo.netapp.com
+      username: admin
+      password: Netapp1!
+      https: true
+      validate_certs: false
+
+  tasks:
+
+  - name: Get volume info
+    na_ontap_info:
+      state: info
+      gather_subset: volume_info
+      <<: *login
+    register: results
+
+  - name: Filter and protect user volumes
+    loop: "{{ results.ontap_info.volume_info | dict2items }}"
+    loop_control:
+      label: "{{ item.value.volume_id_attributes.name }}"
+
+    when:
+      - item.value.volume_id_attributes.name is match("user_.*")
+      - item.value.volume_snapshot_attributes.snapshot_policy != 'user_storage'
+
+    na_ontap_volume:
+      state: present
+      name: "{{ item.value.volume_id_attributes.name }}"
+      vserver: "{{ item.value.volume_id_attributes.owning_vserver_name }}"
+      aggregate_name: "{{ item.value.volume_id_attributes.containing_aggregate_name }}"
+      snapshot_policy: user_storage
+      <<: *login
