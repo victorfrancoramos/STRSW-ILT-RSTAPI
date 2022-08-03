@@ -1,4 +1,5 @@
 ---
+# Testing getting cluster info
 - hosts: localhost
   name: Get Netapp info
   vars:
