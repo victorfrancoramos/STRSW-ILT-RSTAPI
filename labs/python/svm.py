@@ -14,17 +14,17 @@ print(svm)
 
 # Other option
 print("Other option:")
-print(list(Aggregate.get_collection()))
+print(list(Svm.get_collection()))
 
 # To get details
 print("To get details:")
-for x in Aggregate.get_collection():
+for x in Svm.get_collection():
  x.get()
  print(x)
- print("Aggregate name:")
+ print("Svm name:")
  print(x.name)
- print("Aggregate uuid:")
+ print("Svm uuid:")
  print(x.uuid)
- print("Aggregate type:")
+ print("Svm type:")
  print(x, type(x))
 
