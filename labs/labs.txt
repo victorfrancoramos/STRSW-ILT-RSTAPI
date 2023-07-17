@@ -4,3 +4,5 @@ curl -kiu admin:Netapp1! -X GET https://cluster1.demo.netapp.com/api/storage/agg
 
 # python aggr.py gives an error "ImportError: No module named netapp_ontap"
 python3.7 aggr.py
+
+curl -k -X POST "https://cluster2.demo.netapp.com/api/storage/volumes?return_timeout=0&return_records=false" -H  "accept: application/json" -H  "authorization: Basic YWRtaW46TmV0YXBwMSE=" -H  "Content-Type: application/json" -d "{    \"aggregates\": [      {        \"name\": \"aggr1_cluster2_01\"      }    ],    \"name\": \"api_vol_1\",    \"space\": {      \"size\": \"100m\"    },    \"svm\": {      \"name\": \"svm21\"    }  }"
